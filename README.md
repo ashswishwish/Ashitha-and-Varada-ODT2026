@@ -58,14 +58,14 @@ By the final review, this README should clearly show:
 
 | Name | Primary Role | Secondary Role | Strengths Brought to the Project |
 |---|---|---|---|
-| `Ashitha Ashok` | `[Electronics / Coding / App / Fabrication / Mechanics]` | `[Role]` | `[Write here]` |
-| `Varada Supanekar` | `[Electronics / Coding / App / Fabrication / Mechanics]` | `[Role]` | `[Write here]` |
+| `Ashitha Ashok` | `[Coding / App]` | `[Electronics]` | `[Strong logic building, UI thinking, integration]` |
+| `Varada Supanekar` | `[Electronics / Fabrication]` | `[Mechanics]` | `[Circuit design, physical prototyping]` |
 
 ## 1.3 Project Title
-`[Enter the title of your project]`
+`[Batman Dodge]`
 
 ## 1.4 One-Line Pitch
-`A fast-paced pixel-art Batman game where the player flies through Gotham while dodging and shooting obstacles in real time.`
+`A fast-paced pixel-art interactive game where Batman navigates a chaotic city while players control survival through real-time physical inputs.`
 
 ## 1.5 Expanded Project Idea
 In 1–2 paragraphs, explain:
@@ -75,7 +75,9 @@ In 1–2 paragraphs, explain:
 - what technologies are involved.
 
 **Response:**  
-`[Write here]`
+`[The project is a 2D pixel-art interactive game system** where Batman moves continuously across a city landscape, and the player must help him dodge obstacles such as buildings, enemies, and projectiles. The system combines screen-based gameplay with physical interaction** using sensors/buttons connected to an ESP32.
+
+The experience is designed to be **fast, reactive, and replayable**, emphasizing reflexes and timing. The pixel aesthetic creates nostalgia, while the physical interaction introduces embodiment, making it more engaging than a purely digital game.]`
 
 ---
 
@@ -101,7 +103,9 @@ Answer the following:
 - Why would someone want to try it again?
 
 **Response:**  
-`[Write here]`
+`[- Experience: Fast reflex-based dodging game
+- Feeling: Tension, urgency, satisfaction after survival
+- Replay value: Increasing difficulty and score-based motivation]`
 
 ## 2.3 Design Persona
 Complete the sentence below:
@@ -109,7 +113,7 @@ Complete the sentence below:
 > We are designing this project as if we are a small creative studio making a **[toy / game / playable object / interactive experience]** for **[children / teens / adults / classmates / exhibition visitors / mixed audience]**.
 
 **Response:**  
-`[Write here]`
+`[We are designing this project as a game for teens and exhibition visitors.]`
 
 ---
 
@@ -120,15 +124,15 @@ List what inspired the project.
 
 | Source Type | Title / Link | What Inspired You |
 |---|---|---|
-| `[Toy / Board game / App / Video / Website / Object]` | `[Link or title]` | `[What did you learn or borrow?]` |
-| `[Toy / Board game / App / Video / Website / Object]` | `[Link or title]` | `[What did you learn or borrow?]` |
-| `[Toy / Board game / App / Video / Website / Object]` | `[Link or title]` | `[What did you learn or borrow?]` |
+| `[Video Game]` | `[Flappy Bird]` | `[Simple but addictive loop]` |
+| `[Video Game]` | `[Jetpack Joyride]` | `[Continuous motion gameplay]` |
+| `[Visual Style]` | `[Pixel Art Games]` | `[Minimal but expressive visuals]` |
 
 ## 3.2 Original Twist
 What makes your project original?
 
 **Response:**  
-`[Write here]`
+`[The integration of physical controls (buttons/sensors) with a digital pixel with the illusion carried by the mirror , game creates a hybrid interaction, unlike typical screen-only games.]`
 
 ---
 
@@ -144,25 +148,25 @@ Examples:
 - move object → sensor detects → sound/light response → player reacts
 
 **Response:**  
-`[Write here]`
+`[press → jump/dodge → avoid obstacle → score increases → repeat]`
 
 ## 4.2 Intended Player / Audience
 
 | Question | Response |
 |---|---|
-| Who is this for? | `[Write here]` |
-| Age range | `[Write here]` |
-| Solo or multiplayer | `[Write here]` |
-| Expected duration of one round | `[Write here]` |
-| What should the player feel? | `[Write here]` |
-| Is explanation required before use? | `[Write here]` |
+| Who is this for? | `[Students / exhibition visitors]` |
+| Age range | `[10–25]` |
+| Solo or multiplayer | `[Solo]` |
+| Expected duration of one round | `[30–60 seconds per round]` |
+| What should the player feel? | `[Tension and excitement]` |
+| Is explanation required before use? | `[Minimal]` |
 
 ## 4.3 Player Journey
 Describe exactly how a player will use the project.
 
-1. **Approach:** `[How does the player first encounter it?]`
-2. **Start:** `[How do they begin?]`
-3. **First Action:** `[What do they do first?]`
+1. **Approach:** `[Sees screen + controls]`
+2. **Start:** `[Press button]`
+3. **First Action:** `[Batman starts moving]`
 4. **Main Interaction:** `[What keeps happening during use?]`
 5. **System Response:** `[How does the project respond?]`
 6. **Win / Lose / End Condition:** `[How does one round end?]`
