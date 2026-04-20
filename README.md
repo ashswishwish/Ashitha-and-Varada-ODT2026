@@ -827,10 +827,15 @@ Insert a sketch or screenshot of the app interface.
 
 | Item | Quantity | In Kit? | Need to Buy? | Estimated Cost | Material / Spec | Why This Choice? |
 |---|---:|---|---|---:|---|---|
-| `[ESP32]` | `1` | `Yes` | `Yes` | `5` | `[ESP32WROOM-Bluetooth/wifi]` | `[main system]` |
-| `[Item]` | `[Qty]` | `[Yes/No]` | `[Yes/No]` | `[Cost]` | `[Spec]` | `[Reason]` |
-| `[Item]` | `[Qty]` | `[Yes/No]` | `[Yes/No]` | `[Cost]` | `[Spec]` | `[Reason]` |
-
+| `[ESP32]` | `1` | `Yes` | `Yes` | QTY -`4` | 2040 Rupees | `[ESP32WROOM-Bluetooth/wifi]` | `[Main MicroPython Device]` |
+| `[18650 Battery]` | `[No]` | `[Yes]` | QTY - '1' |`[100 Rupees]` | `[Power Source to have a wireless connection for ESP32]` |
+| `Battery Holder` | `NO` | `[Yes]` | QTY - '1' | `[30 Rupees]` | `[PLastic Holder]` | `[Power Source aid]` |
+| `[Joystick Module]` | `2` | `No` | `Yes` | 100 Rupees | `[E-348 - PS2 JOYSTICK MODULE BREAKOUT SENSOR]` | `[More interactive and matched our arcade themed game idea]` |
+|`[Breadboard]` | `2` | `Yes` | `Yes` | 98 Rupees | `[RCT-159 - BREADBOARD - 400 POINTS]` | `[Multiple connections reqd two boards]` |
+|`Push Buttons` | `6` | `Yes` | `Yes` |  36 Rupees | `[TC 15 12*12*7 mm ]` | `[More Buttons to add actions to the console]` |
+|'Micro-USB cable' | '1' | 'Yes' | Yes | 120 Rupees | USB-A to Micro-B | Power + MicroPython flashing via Thonny |`
+| 'One-way acrylic mirror sheet' | 1 | No | Yes | ₹350 | 9 by 12 inches, 3 mm | Mirror installation for game display illusion |
+|
 ## 12.2 Material Justification
 Explain why you selected your main materials and components.
 
@@ -841,7 +846,11 @@ Examples:
 - Why bearing instead of a plain shaft hole?
 
 **Response:**  
-`[Write here]`
+`[**HW-504 over buttons:** Analogue joysticks give proportional directional intent and a single module covers two axes plus a click, reducing wiring complexity significantly.
+- **WS2812B NeoPixel over plain LEDs:** Single-wire addressable RGB allows any colour to be set in one line of code, enabling the full action-colour feedback system without extra PWM pins.
+- **MDF/PLA enclosure over cardboard:** Cardboard deforms under joystick force. A rigid enclosure keeps joystick modules fixed at the correct height and separation for comfortable two-thumb grip.
+
+]`
 
 ## 12.3 Items to Purchase Separately
 
@@ -888,7 +897,7 @@ Include:
 
 | Task ID | Task | Owner | Estimated Hours | Deadline | Dependency | Status |
 |---|---|---|---:|---|---|---|
-| T1 | `[Finalize concept]` | `[Name]` | `2` | `[Date]` | `None` | `To Do` |
+| T1 | `[Finalize concept and game control mapping]` | `[Both]` | `2` | `[Date]` | `None` | `To Do` |
 | T2 | `[Complete BOM]` | `[Name]` | `1` | `[Date]` | `T1` | `To Do` |
 | T3 | `[Test electronics]` | `[Name]` | `2` | `[Date]` | `T1` | `To Do` |
 | T4 | `[Build structure]` | `[Name]` | `4` | `[Date]` | `T1` | `To Do` |
@@ -917,37 +926,37 @@ Include:
 
 ### Week 1 — Plan and De-risk
 Expected outcomes:
-- [O] Idea finalized
-- [0] Core interaction decided
-- [ ] Sketches made
-- [ ] BOM completed
-- [0] Purchase needs identified
-- [ ] Key uncertainty identified
+- [x] Idea finalized
+- [x] Core interaction decided
+- [x] Sketches made
+- [x] BOM completed
+- [x] Purchase needs identified
+- [x] Key uncertainty identified
 - [ ] Basic feasibility tested
 
 ### Week 2 — Build Subsystems
 Expected outcomes:
-- [ ] Electronics tests completed
-- [ ] CAD / structure planning completed
-- [ ] App UI started if needed
+- [x] Electronics tests completed
+- [x] CAD / structure planning completed
+- [x] App UI started if needed
 - [ ] Mechanical concept tested
 - [ ] Main subsystems partially working
 
 ### Week 3 — Integrate
 Expected outcomes:
-- [ ] Physical body built
-- [ ] Electronics integrated
-- [ ] Code connected to hardware
-- [ ] App connected if required
-- [ ] First playable version exists
+- [x] Physical body built
+- [x] Electronics integrated
+- [x] Code connected to hardware
+- [x] App connected if required
+- [x] First playable version exists
 
 ### Week 4 — Refine and Finish
 Expected outcomes:
-- [ ] Technical bugs reduced
-- [ ] Playtesting completed
-- [ ] Improvements made
-- [ ] Documentation completed
-- [ ] Final build ready
+- [x] Technical bugs reduced
+- [x] Playtesting completed
+- [x] Improvements made
+- [x] Documentation completed
+- [x] Final build ready
 
 ## 14.2 Weekly Update Log
 
