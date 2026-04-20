@@ -306,7 +306,7 @@ Check all that apply.
 - [ ] Wheels
 - [ ] Sliders
 - [ ] Levers
-- [0] Not applicable
+- [x] Not applicable
 
 ## 8.2 Mechanical Description
 Describe the mechanism and what it is meant to do.
@@ -352,14 +352,42 @@ What changed after the CAD, animation, or simulation stage?
 | Component | Quantity | Purpose |
 |---|---:|---|
 | `[ESP32]` | `1` | `[Main controller]` |
-| `[Component]` | `[Qty]` | `[Purpose]` |
-| `[Component]` | `[Qty]` | `[Purpose]` |
+| `[ Dual-Axis Joystick Module]` | `[2]` | `[Analogue X/Y input + digital push-button]` |
+| `[WS2812B NeoPixel LED]` | `[1]` | `[RGB action-colour breathing feedback]` |
+| `[Dupont jumper wires (M-M, M-F)]` | `[1]` | `[connecting wires]` |
+| `[Micro-USB cable]` | `[1]` | `[Power and MicroPython flashing]` |
+| `[Breadboard / PCB]` | `[1]` | `[Prototyping connections]` |
+
+
 
 ## 9.2 Wiring Plan
 Describe the main electrical connections.
 
 **Response:**  
-`[Write here]`
+`[Left Joystick (HW-504 #1):
+
+VCC → ESP32 3.3V
+GND → ESP32 GND
+VRx → GPIO 32 (ADC1_CH4)
+VRy → GPIO 33 (ADC1_CH5)
+SW  → GPIO 25 (PULL_UP enabled in code)
+
+Right Joystick (HW-504 #2):
+
+VCC → ESP32 3.3V
+GND → ESP32 GND
+VRx → GPIO 34 (ADC1_CH6, input-only)
+VRy → GPIO 35 (ADC1_CH7, input-only)
+SW  → GPIO 26 (PULL_UP enabled in code)
+
+NeoPixel:
+
+VCC → ESP32 VIN (5V from USB)
+GND → ESP32 GND
+DIN → 300 Ω resistor → GPIO 2
+
+
+Note: GPIO 34 and 35 are input-only on the ESP32 — do not try to use them as outputs. Internal pull-ups are not available on these pins; the joystick button uses GPIO 25 and 26 which support PULL_UP.]`
 
 ## 9.3 Circuit Diagram
 Insert a hand-drawn or software-made circuit diagram.
@@ -371,10 +399,10 @@ Insert a hand-drawn or software-made circuit diagram.
 
 | Question | Response |
 |---|---|
-| Power source | `[USB / battery / adapter / other]` |
-| Voltage required | `[Write here]` |
-| Current concerns | `[Write here]` |
-| Safety concerns | `[Write here]` |
+| Power source | `[ 3.7V battery]` |
+| Voltage required | `[5V for NeoPixel VCC; 3.3V (regulated on board) for ESP32 logic and joysticks]` |
+| Current concerns | `[NeoPixel at full white draws ~60 mA; ESP32 + BLE ~240 mA peak; total under 400 mA — safe for USB]` |
+| Safety concerns | `[NeoPixel power spike on startup; mitigated by 100 µF capacitor across VCC/GND. GPIO 34/35 are 3.3V-max — do not connect 5V signals.]` |
 
 ---
 
@@ -384,8 +412,11 @@ Insert a hand-drawn or software-made circuit diagram.
 
 | Tool / Platform | Purpose |
 |---|---|
-| `[MicroPython / Arduino / MIT App Inventor / CAD tool / other]` | `[Purpose]` |
-| `[Tool]` | `[Purpose]` |
+| `[MicroPython]` | `[Main controller firmware — ADC reading, BLE HID, NeoPixel control]` |
+| `[Gdevelop]` | `[Game devloper for BATMANOR — handles all gameplay logic, collision, lives, levels]` |
+| `[ble_keyboard.py library]` | `[BLE HID keyboard abstraction used by the ESP32 firmware]` |
+| `[Thonny IDE]` | `[Flash and run MicroPython scripts on the ESP32]` |
+
 
 ## 10.2 Software Logic
 Describe what the code must do.
@@ -400,10 +431,25 @@ Include:
 - reset behavior.
 
 **Response:**  
-`[Write here]`
+`[Startup:
+
+NeoPixel runs a 5-colour startup flash (R→Y→G→B→Purple) to confirm wiring.
+BLE advertising begins; NeoPixel breathes white (COL_WAITING) until paired.
+Both joysticks are calibrated: 30 ADC samples are averaged to find the resting centre on each axis. No sticks should be touched during this phase.
+
+Main loop (20 ms / 50 Hz):
+
+Read left joystick: ADC on GPIO 32 (X) and GPIO 33 (Y), subtract calibrated centre, apply deadzone (±600 counts). Map result to KEY_W/A/S/D. Read button on GPIO 25 → KEY_ESC.
+Read right joystick: ADC on GPIO 34 (X) and GPIO 35 (Y), subtract calibrated centre, apply deadzone. Map X-left → KEY_H, X-right → KEY_L, Y-down → KEY_J. Read button on GPIO 26 → KEY_F.
+Compare current key set to previous. If changed, send a new 8-byte BLE HID report (modifier + 0 + 6 keycodes, packed with struct.pack("8B")).
+Pick NeoPixel colour by priority: F (green) > ESC (red) > J (cyan) > H/L (purple) > W/S (yellow) > A/D (orange) > idle (white). After release, linger colour holds for 12 loops (~240 ms) before fading to white.
+Advance the breathing triangle wave one step (±1/40 per loop, reversing at min/max brightness 0.10–1.00).
+If BLE disconnects mid-session, NeoPixel returns to COL_WAITING and the loop continues waiting for reconnection.
+
+Reset: No explicit reset needed — releasing all inputs sends a zero-key HID report; game handles its own round reset on life loss.]`
 
 ## 10.3 Code Flowchart
-Insert a flowchart showing your code logic.
+
 
 Suggested sequence:
 - start,
@@ -416,12 +462,317 @@ Suggested sequence:
 - error handling.
 
 **Insert image below:**  
-`[Upload image and link here]`
+`[<img width="447" height="728" alt="image" src="https://github.com/user-attachments/assets/43b8e711-de0a-493b-915b-2396dcb2e5db" />
+]`
 
 ## 10.4 Pseudocode
 
 ```text
-[Write your pseudocode here]
+[# =================================================================
+#  ESP32 BLE GAMEPAD — Dual Joystick + Breathing NeoPixel
+#
+#  File: gamepad_test.py
+#  Run from Thonny with F5. Stop with Ctrl+C.
+#  Requires: ble_keyboard.py in same directory (unchanged)
+#
+#  Wiring (HW-504 #1 — left, WASD + ESC):
+#    VCC -> 3.3V, GND -> GND
+#    VRx -> GPIO 32, VRy -> GPIO 33, SW -> GPIO 25
+#
+#  Wiring (HW-504 #2 — right, H/L/J + F):
+#    VCC -> 3.3V, GND -> GND
+#    VRx -> GPIO 34, VRy -> GPIO 35, SW -> GPIO 26
+#
+#  Wiring (NeoPixel):
+#    VCC -> 5V (VIN pin), GND -> GND, DIN -> GPIO 2
+# =================================================================
+
+from machine import Pin, ADC
+import neopixel, time, struct
+from ble_keyboard import BLEKeyboard
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  CONFIGURATION
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# ── Joystick pins ──
+PIN_JOY_X    = 32          # left stick X
+PIN_JOY_Y    = 33          # left stick Y
+PIN_JOY_BTN  = 25          # left click  → ESC
+PIN_JOY2_X   = 34          # right stick X  → H / L
+PIN_JOY2_Y   = 35          # right stick Y  → J (down)
+PIN_JOY2_BTN = 26          # right click → F (fire)
+
+# ── NeoPixel ──
+PIN_NEO      = 2            # try GPIO2 if GPIO4 didn't work
+NUM_PIXELS   = 1            # ← set this to however many LEDs you have
+
+# ── Joystick behaviour ──
+DEADZONE     = 600
+LOOP_MS      = 20
+CAL_SAMPLES  = 30
+INVERT_X     = False
+INVERT_Y     = True
+
+DEVICE_NAME  = "ESP32_Gamepad"
+
+# ── HID keycodes ──
+KEY_W        = 26
+KEY_A        = 4
+KEY_S        = 22
+KEY_D        = 7
+KEY_ESC      = 41           # left click
+KEY_H        = 11           # right stick left  — flip left
+KEY_L        = 15           # right stick right — flip right
+KEY_J        = 13           # right stick down  — dash
+KEY_F        = 9            # right click       — fire
+
+# ── Colours (R, G, B) at full brightness ──
+COL_WAITING  = (80,  80,  80)   # white  — not yet paired
+COL_IDLE     = (80,  80,  80)   # white  — connected, no input
+COL_WS       = (120, 100, 0)    # yellow — W or S
+COL_AD       = (150, 40,  0)    # orange — A or D
+COL_FLIP     = (80,  0,   120)  # purple — H or L (flip)
+COL_DASH     = (0,   120, 120)  # cyan   — J (dash)
+COL_FIRE     = (0,   120, 0)    # green  — F (fire)
+COL_ESC      = (120, 0,   0)    # red    — ESC
+
+# ── Breathing ──
+BREATH_MIN    = 0.10
+BREATH_MAX    = 1.00
+BREATH_STEPS  = 40          # steps per half-cycle (40×20ms = 0.8s per half)
+
+# ── Linger — how many loops a colour holds after button releases ──
+LINGER_LOOPS  = 12          # ~240ms
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  BLE KEYBOARD WRAPPER
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class BLEKbdHold(BLEKeyboard):
+    def send_hold(self, keycodes, modifier=0):
+        ks = list(keycodes)[:6]
+        while len(ks) < 6:
+            ks.append(0)
+        self._send(struct.pack("8B", modifier, 0, *ks))
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  NEOPIXEL CONTROLLER — continuous breathing
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Triangle wave runs every loop regardless of colour changes.
+#  set_colour() swaps the hue without resetting the wave, so
+#  transitions feel smooth instead of snapping.
+
+class NeoController:
+    def __init__(self, pin, n):
+        self.np         = neopixel.NeoPixel(Pin(pin), n)
+        self.n          = n
+        self.target     = COL_IDLE
+        self._step      = 0
+        self._direction = 1
+
+    def set_colour(self, colour):
+        self.target = colour
+
+    def breathe(self):
+        t = self._step / BREATH_STEPS
+        b = BREATH_MIN + (BREATH_MAX - BREATH_MIN) * t
+        col = (
+            int(self.target[0] * b),
+            int(self.target[1] * b),
+            int(self.target[2] * b),
+        )
+        for i in range(self.n):
+            self.np[i] = col
+        self.np.write()
+
+        self._step += self._direction
+        if self._step >= BREATH_STEPS:
+            self._direction = -1
+        elif self._step <= 0:
+            self._direction = 1
+
+    def startup_flash(self):
+        """Rapid colour cycle on boot — confirms wiring immediately."""
+        for col in [(120,0,0),(120,80,0),(0,120,0),(0,0,120),(80,0,120)]:
+            for i in range(self.n):
+                self.np[i] = col
+            self.np.write()
+            time.sleep_ms(120)
+        for i in range(self.n):
+            self.np[i] = (0, 0, 0)
+        self.np.write()
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  JOYSTICK
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class Joystick:
+    def __init__(self, pin_x, pin_y, pin_btn, deadzone,
+                 invert_x=False, invert_y=False):
+        self.adc_x    = ADC(Pin(pin_x))
+        self.adc_y    = ADC(Pin(pin_y))
+        self.adc_x.atten(ADC.ATTN_11DB)
+        self.adc_y.atten(ADC.ATTN_11DB)
+        self.btn      = Pin(pin_btn, Pin.IN, Pin.PULL_UP)
+        self.deadzone = deadzone
+        self.invert_x = invert_x
+        self.invert_y = invert_y
+        self.center_x = 2048
+        self.center_y = 2048
+
+    def calibrate(self):
+        sx, sy = 0, 0
+        for _ in range(CAL_SAMPLES):
+            sx += self.adc_x.read()
+            sy += self.adc_y.read()
+            time.sleep_ms(10)
+        self.center_x = sx // CAL_SAMPLES
+        self.center_y = sy // CAL_SAMPLES
+
+    def read(self):
+        dx = self.adc_x.read() - self.center_x
+        dy = self.adc_y.read() - self.center_y
+        if self.invert_x: dx = -dx
+        if self.invert_y: dy = -dy
+        x_dir   = 1 if dx > self.deadzone else (-1 if dx < -self.deadzone else 0)
+        y_dir   = 1 if dy > self.deadzone else (-1 if dy < -self.deadzone else 0)
+        pressed = self.btn.value() == 0
+        return (x_dir, y_dir, pressed)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  GAMEPAD
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+class Gamepad:
+    def __init__(self, js1, js2, keyboard, neo):
+        self.js1       = js1
+        self.js2       = js2
+        self.kbd       = keyboard
+        self.neo       = neo
+        self.last_keys = frozenset()
+        self.linger    = 0
+        self.linger_col = COL_IDLE
+
+    def update(self):
+        x1, y1, btn1 = self.js1.read()
+        x2, y2, btn2 = self.js2.read()
+
+        keys = set()
+
+        # ── Left stick: WASD + ESC click ──────────────────────
+        if   x1 > 0: keys.add(KEY_D)
+        elif x1 < 0: keys.add(KEY_A)
+        if   y1 > 0: keys.add(KEY_W)
+        elif y1 < 0: keys.add(KEY_S)
+        if btn1:     keys.add(KEY_ESC)
+
+        # ── Right stick: H/L/J + F click ──────────────────────
+        if   x2 < 0: keys.add(KEY_H)   # lean left  → flip left
+        elif x2 > 0: keys.add(KEY_L)   # lean right → flip right
+        if   y2 < 0: keys.add(KEY_J)   # push down  → dash
+        if btn2:     keys.add(KEY_F)   # click      → fire
+
+        current = frozenset(keys)
+        if current != self.last_keys:
+            self.kbd.send_hold(current)
+            self.last_keys = current
+            self._log(current)
+
+        self._pick_colour(keys)
+        self.neo.breathe()
+
+    def _pick_colour(self, keys):
+        """
+        Priority (high → low):
+          fire > esc > dash > flip > W/S > A/D > idle
+        Linger keeps the colour alive briefly after release.
+        """
+        if KEY_F in keys:
+            self._set_linger(COL_FIRE)
+        elif KEY_ESC in keys:
+            self._set_linger(COL_ESC)
+        elif KEY_J in keys:
+            self._set_linger(COL_DASH)
+        elif KEY_H in keys or KEY_L in keys:
+            self._set_linger(COL_FLIP)
+        elif KEY_W in keys or KEY_S in keys:
+            self._set_linger(COL_WS)
+        elif KEY_A in keys or KEY_D in keys:
+            self._set_linger(COL_AD)
+        else:
+            if self.linger > 0:
+                self.linger -= 1
+                self.neo.set_colour(self.linger_col)
+            else:
+                self.neo.set_colour(COL_IDLE)
+
+    def _set_linger(self, colour):
+        self.linger     = LINGER_LOOPS
+        self.linger_col = colour
+        self.neo.set_colour(colour)
+
+    def _log(self, keys):
+        names = {
+            KEY_W:"W", KEY_A:"A", KEY_S:"S", KEY_D:"D",
+            KEY_ESC:"ESC", KEY_H:"H", KEY_L:"L",
+            KEY_J:"J", KEY_F:"F",
+        }
+        held = [names.get(k, "?") for k in keys]
+        print("  keys:", "+".join(held) if held else "(released)")
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  MAIN
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def main():
+    print("=" * 40)
+    print("  ESP32 BLE Gamepad")
+    print("  L:WASD+ESC  R:H/L/J+F")
+    print("=" * 40)
+
+    neo = NeoController(PIN_NEO, NUM_PIXELS)
+    neo.startup_flash()                    # colour cycle = neopixel alive
+
+    print("Starting BLE...")
+    kbd = BLEKbdHold(DEVICE_NAME)
+    neo.set_colour(COL_WAITING)            # white breathing while pairing
+
+    print("Calibrating — DO NOT touch the sticks!")
+    time.sleep_ms(500)
+    js  = Joystick(PIN_JOY_X,  PIN_JOY_Y,  PIN_JOY_BTN,
+                   DEADZONE, INVERT_X, INVERT_Y)
+    js2 = Joystick(PIN_JOY2_X, PIN_JOY2_Y, PIN_JOY2_BTN,
+                   DEADZONE, INVERT_X, INVERT_Y)
+    js.calibrate()
+    js2.calibrate()
+    print("  stick1 center: X={}  Y={}".format(js.center_x,  js.center_y))
+    print("  stick2 center: X={}  Y={}".format(js2.center_x, js2.center_y))
+
+    print("\nPair with '{}' in Bluetooth settings.".format(DEVICE_NAME))
+    while not kbd.is_connected():
+        neo.breathe()
+        time.sleep_ms(LOOP_MS)
+    print("Connected!\n")
+    neo.set_colour(COL_IDLE)
+
+    gamepad = Gamepad(js, js2, kbd, neo)
+    while True:
+        if kbd.is_connected():
+            gamepad.update()
+        else:
+            neo.set_colour(COL_WAITING)
+            neo.breathe()
+        time.sleep_ms(LOOP_MS)
+
+
+main()]
 ```
 
 ---
