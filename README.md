@@ -168,17 +168,22 @@ Describe exactly how a player will use the project.
 2. **Start:** `[Light sensor detects presence; game activates and becomes visible through the one-way mirror. Player picks up the ESP32 console]`
 3. **First Action:** `[Batman begins moving automatically. Player pushes the left joystick to steer, NeoPixel turns yellow (W/S) or orange (A/D) instantly.]`
 4. **Main Interaction:** `[Player steers Batman with the left stick (WASD), uses the right stick to flip direction (H/L), dash downward (J), and fires with the right button (F). The NeoPixel cycles through cyan, green, purple, orange in direct response.]`
-5. **System Response:** `[How does the project respond?]`
+5. **System Response:** `[All 4 lives lost → game over screen visible through the mirror..]`
 6. **Win / Lose / End Condition:** `[How does one round end?]`
-7. **Reset:** `[How does the next round begin?]`
+7. **Reset:** `[Game resets automatically or on player input; mirror returns to idle reflection state.]`
 
 ## 4.4 Rules of Play
 If your project is a game, list the rules clearly.
 
-- `[Rule 1]`
-- `[Rule 2]`
-- `[Rule 3]`
-- `[Rule 4]`
+- `[Batman moves continuously; the player must steer and dodge.]`
+- `[Left joystick controls directional movement (W=up, S=down, A=left, D=right).]`
+- `[Right joystick left/right triggers a directional flip (H / L keys).]`
+- `[Right joystick pushed down triggers a dash (J key).]`
+- `[Right joystick button fires (F key) , Left joystick button pauses / opens menu (ESC key).]`
+- `[Player has 4 lives; losing all lives ends the round.]`
+- `[Difficulty increases progressively with each level.]`
+
+
 
 ---
 
@@ -187,24 +192,24 @@ If your project is a game, list the rules clearly.
 ## 5.1 Definition of “Playable”
 Your project will be considered complete only if these conditions are met.
 
-- [ ] `[Condition 1]`
-- [ ] `[Condition 2]`
-- [ ] `[Condition 3]`
-- [ ] `[Condition 4]`
-- [ ] `[Condition 5]`
+- [ ] `[he mirror convincingly appears as a normal reflective surface when idle and transitions clearly into a game display when activated.]`
+- [ ] `[Players are able to understand and start interacting with the system with minimal instructions.]`
+- [ ] `[Joystick controls feel responsive and allow smooth movement, attack, and dash actions (BLE loop runs at 50 Hz / 20 ms per cycle; deadzone set to 600/4095 ADC units).]`
+- [ ] `[The game provides a progressively challenging and replayable experience across multiple lives and levels.]`
+- [ ] `[NeoPixel lighting responds instantly and meaningfully to in-game actions — colour changes occur within the same 20 ms loop tick as the keypress.]`
 
 ## 5.2 Minimum Viable Version
 What is the smallest version of this project that still delivers the core experience?
 
 **Response:**  
-`[Write here]`
+`[A hand-held ESP32 console with both joysticks, and BLE keyboard pairing, running the BATMANNER game on an iPad. Core loop is: move, dodge, fire, lose a life — with NeoPixel confirming each action in colour.]`
 
 ## 5.3 Stretch Features
 What features are nice to have but not essential?
 
-- `[Stretch feature 1]`
-- `[Stretch feature 2]`
-- `[Stretch feature 3]`
+- `[One-way mirror installation frame with internal LED ambient lighting.]`
+- `[Light-sensor proximity trigger to auto-wake the game when a player approaches.]`
+- `[Score leaderboard displayed on the mirror frame after each round.]`
 
 ---
 
@@ -213,17 +218,17 @@ What features are nice to have but not essential?
 ## 6.1 Project Type
 Check all that apply.
 
-- [ ] Electronics-based
+- [0] Electronics-based
 - [ ] Mechanical
-- [ ] Sensor-based
-- [ ] App-connected
+- [0] Sensor-based
+- [0] App-connected
 - [ ] Motorized
 - [ ] Sound-based
-- [ ] Light-based
-- [ ] Screen/UI-based
-- [ ] Fabricated structure
-- [ ] Game logic based
-- [ ] Installation / tabletop experience
+- [0] Light-based
+- [0] Screen/UI-based
+- [0] Fabricated structure
+- [0] Game logic based
+- [0] Installation / tabletop experience
 - [ ] Other: `[Write here]`
 
 ## 6.2 High-Level System Description
@@ -237,16 +242,16 @@ Include:
 - app interaction if any.
 
 **Response:**  
-`[Write here]`
+`[The ESP32 reads two analogue HW-504 joysticks (4 ADC channels + 2 digital button pins) at 50 Hz. On each loop, it compares the deflection against a calibrated centre value and a deadzone of 600 ADC units (out of 4095). If a direction is active, it assembles a 6-key HID keyboard report and sends it over BLE using the BLEKbdHold class, which holds keys down for as long as the stick is deflected — matching how a keyboard game expects input. Simultaneously, the NeoPixel breathes using a triangle-wave brightness function and changes colour based on which keys are active, with a 12-loop (~240 ms) linger so colours do not snap off the moment a stick returns to centre. The game (BATMANNER, built in GDevelop) runs on an iPad and receives keyboard events from the ESP32 as if they came from a standard Bluetooth keyboard.]`
 
 ## 6.3 Input / Output Map
 
 | System Part | Type | What It Does |
 |---|---|---|
-| `[Button / Sensor / Switch / App Input]` | Input | `[Describe]` |
-| `[ESP32 / Controller]` | Processing | `[Describe]` |
-| `[LED / Motor / Servo / Buzzer / Display]` | Output | `[Describe]` |
-| `[Mechanical Assembly]` | Physical Action | `[Describe]` |
+| `[Joystick #1 and #2]` | Input | `[Left stick: W/A/S/D movement + ESC on click and Right stick: H/L flip, J dash, F fire on click ]` |
+| `[ESP32 / Controller]` | Processing | `[Samples analog input via ADC, applies deadzone filtering and calibration, and packages the processed data into BLE HID reports for transmission.]` |
+| `[WS2812B NeoPixel]` | Output | `[Breathing colour feedback: white=idle, yellow=W/S, orange=A/D, cyan=J, green=F, purple=H/L, red=ESC]` |
+| `[iPad running GDevelop game]` | Processing | `[Receives BLE keyboard events, runs all game logic and rendering]` |
 
 ---
 
@@ -278,10 +283,10 @@ Add a sketch with labels showing:
 
 | Dimension | Value |
 |---|---|
-| Length | `[Write here]` |
-| Width | `[Write here]` |
-| Height | `[Write here]` |
-| Estimated weight | `[Write here]` |
+| Length | `[~160 mm]` |
+| Width | `[~90 mm]` |
+| Height | `[~35 mm (enclosure with joystick caps)]` |
+| Estimated weight | `[~180 g (with enclosure)]` |
 
 ---
 
@@ -301,13 +306,13 @@ Check all that apply.
 - [ ] Wheels
 - [ ] Sliders
 - [ ] Levers
-- [ ] Not applicable
+- [0] Not applicable
 
 ## 8.2 Mechanical Description
 Describe the mechanism and what it is meant to do.
 
 **Response:**  
-`[Write here]`
+`[The controller enclosure houses the ESP32, two HW-504 joystick modules, a NeoPixel LED, and wiring. The joystick shafts protrude through cut holes on the top face. The enclosure uses a hinged or snap-fit lid for access to electronics during development. The one-way mirror frame is a separate standing structure that holds the iPad behind an acrylic one-way mirror panel.]`
 
 ## 8.3 Motion Planning
 If something moves, explain:
@@ -318,21 +323,25 @@ If something moves, explain:
 - what could go wrong.
 
 **Response:**  
-`[Write here]`
+`[What moves: The joystick thumbsticks move mechanically on X and Y axes; the potentiometer inside the module converts this to a variable resistance read by the ESP32 ADC.
+Cause: Thumb pressure from the player.
+Range: Each axis sweeps 0–4095 ADC counts; the centre is calibrated at startup (30-sample average, typically ~1900–2100). The deadzone of 600 counts means deflection must exceed ~15% of full range before a keypress registers.
+Speed: ADC is sampled every 20 ms (50 Hz loop).
+What could go wrong: Joystick drift if the module is bumped during calibration; ADC noise on GPIO 34/35 (input-only pins on ESP32, no internal pull-up — ensure 3.3V supply is stable).]`
 
 ## 8.4 Simulation / CAD / Animation Before Making
 If your project includes mechanical motion, document the digital planning before fabrication.
 
 | Tool Used | File / Link | What Was Tested |
 |---|---|---|
-| `[Fusion 360 / Tinkercad / other]` | `[Link or screenshot]` | `[What did you validate?]` |
-| `[Tool]` | `[Link or screenshot]` | `[What did you validate?]` |
+| `[Illustrator]` | `[Link or screenshot]` | `[Enclosure dimensions and joystick hole placement]` |
+| `[Gdev]` | `[Link or screenshot]` | `[Basic ADC read and NeoPixel output before physical assembly]` |
 
 ## 8.5 Changes After Digital Testing
 What changed after the CAD, animation, or simulation stage?
 
 **Response:**  
-`[Write here]`
+`[Joystick hole spacing was adjusted after the first mdf mock-up — the original spacing made two-thumb operation uncomfortable. Final spacing: 80 mm centre-to-centre.]`
 
 ---
 
