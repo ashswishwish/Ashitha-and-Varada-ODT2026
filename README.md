@@ -217,17 +217,17 @@ What features are nice to have but not essential?
 ## 6.1 Project Type
 Check all that apply.
 
-- [0] Electronics-based
+- [x] Electronics-based
 - [ ] Mechanical
-- [0] Sensor-based
-- [0] App-connected
+- [x] Sensor-based
+- [x] App-connected
 - [ ] Motorized
 - [ ] Sound-based
-- [0] Light-based
-- [0] Screen/UI-based
-- [0] Fabricated structure
-- [0] Game logic based
-- [0] Installation / tabletop experience
+- [x] Light-based
+- [x] Screen/UI-based
+- [x] Fabricated structure
+- [x] Game logic based
+- [x] Installation / tabletop experience
 - [ ] Other: `[Write here]`
 
 ## 6.2 High-Level System Description
@@ -260,7 +260,10 @@ Include:
 Add an early sketch of the full idea.
 
 **Insert image below:**  
-`[Upload image and link here]`
+`[<img width="3099" height="2202" alt="image" src="https://github.com/user-attachments/assets/8f0f676c-5a11-4726-abed-76b6e74d0efc" />
+]`
+<img width="1262" height="686" alt="image" src="https://github.com/user-attachments/assets/978092dc-cd92-4319-8027-275b2ac95b96" />
+
 
 Example:
 ```md
@@ -276,7 +279,8 @@ Add a sketch with labels showing:
 - output elements.
 
 **Insert image below:**  
-`[Upload image and link here]`
+`[<img width="1262" height="686" alt="WhatsApp Image 2026-04-21 at 7 54 00 PM" src="https://github.com/user-attachments/assets/bdff8dae-c357-4b12-bb40-86fed4bbed35" />
+]`
 
 ## 7.3 Approximate Dimensions
 
@@ -333,8 +337,9 @@ If your project includes mechanical motion, document the digital planning before
 
 | Tool Used | File / Link | What Was Tested |
 |---|---|---|
-| `[Illustrator]` | `[Link or screenshot]` | `[Enclosure dimensions and joystick hole placement]` |
-| `[Gdev]` | `[Link or screenshot]` | `[Basic ADC read and NeoPixel output before physical assembly]` |
+| `[Illustrator]` | `[<img width="1262" height="686" alt="WhatsApp Image 2026-04-21 at 7 54 00 PM" src="https://github.com/user-attachments/assets/272accc4-67b5-4593-8819-da83edd3b9c1" />
+]` | `[Enclosure dimensions and joystick hole placement]` |
+| `[Gdev]` | `[https://gd.games/games/487fed3e-c6a6-4b87-bb02-618c9e5fb403]` | `[Basic ADC read and NeoPixel output before physical assembly]` |
 
 ## 8.5 Changes After Digital Testing
 What changed after the CAD, animation, or simulation stage?
@@ -369,7 +374,7 @@ VCC → ESP32 3.3V
 GND → ESP32 GND
 VRx → GPIO 32 (ADC1_CH4)
 VRy → GPIO 33 (ADC1_CH5)
-SW  → GPIO 25 (PULL_UP enabled in code)
+
 
 Right Joystick (HW-504 #2):
 
@@ -377,13 +382,13 @@ VCC → ESP32 3.3V
 GND → ESP32 GND
 VRx → GPIO 34 (ADC1_CH6, input-only)
 VRy → GPIO 35 (ADC1_CH7, input-only)
-SW  → GPIO 26 (PULL_UP enabled in code)
+
 
 NeoPixel:
 
 VCC → ESP32 VIN (5V from USB)
 GND → ESP32 GND
-DIN → 300 Ω resistor → GPIO 2
+DIN → 300 Ω resistor → GPIO 14
 
 
 Note: GPIO 34 and 35 are input-only on the ESP32 — do not try to use them as outputs. Internal pull-ups are not available on these pins; the joystick button uses GPIO 25 and 26 which support PULL_UP.]`
@@ -434,9 +439,7 @@ Include:
 - reset behavior.
 
 **Response:**  
-`[Startup:
-
-NeoPixel runs a 5-colour startup flash (R→Y→G→B→Purple) to confirm wiring.
+`[NeoPixel runs a 5-colour startup flash (R→Y→G→B→Purple) to confirm wiring.
 BLE advertising begins; NeoPixel breathes white (COL_WAITING) until paired.
 Both joysticks are calibrated: 30 ADC samples are averaged to find the resting centre on each axis. No sticks should be touched during this phase.
 
@@ -502,14 +505,14 @@ from ble_keyboard import BLEKeyboard
 # ── Joystick pins ──
 PIN_JOY_X    = 32          # left stick X
 PIN_JOY_Y    = 33          # left stick Y
-PIN_JOY_BTN  = 25          # left click  → ESC
+
 PIN_JOY2_X   = 34          # right stick X  → H / L
 PIN_JOY2_Y   = 35          # right stick Y  → J (down)
-PIN_JOY2_BTN = 26          # right click → F (fire)
+
 
 # ── NeoPixel ──
-PIN_NEO      = 2            # try GPIO2 if GPIO4 didn't work
-NUM_PIXELS   = 1            # ← set this to however many LEDs you have
+PIN_NEO      = 14           
+NUM_PIXELS   = 90            # ← set this to however many LEDs you have
 
 # ── Joystick behaviour ──
 DEADZONE     = 600
@@ -780,10 +783,10 @@ main()]
 
 ---
 
-# 11. MIT App Inventor Plan
+# 11. Ddevelop Game Inventor Plan
 
 ## 11.1 Is an app part of this project?
-- [ ] Yes
+- [x] Yes
 - [ ] No
 
 If yes, complete this section.
@@ -1111,6 +1114,9 @@ Suggested images:
 
 Example:
 ```md
+
+<img width="777" height="348" alt="image" src="https://github.com/user-attachments/assets/8deb0c8c-c2a5-4a3d-9e3c-c4e62593c3be" />
+<img width="774" height="322" alt="image" src="https://github.com/user-attachments/assets/75966ab4-485e-4fe5-bc34-a6dc5de82fc9" />
 
 
 
