@@ -834,8 +834,8 @@ Insert a sketch or screenshot of the app interface.
 |`[Breadboard]` | `2` | `Yes` | `Yes` | 98 Rupees | `[RCT-159 - BREADBOARD - 400 POINTS]` | `[Multiple connections reqd two boards]` |
 |`Push Buttons` | `6` | `Yes` | `Yes` |  36 Rupees | `[TC 15 12*12*7 mm ]` | `[More Buttons to add actions to the console]` |
 |'Micro-USB cable' | '1' | 'Yes' | Yes | 120 Rupees | USB-A to Micro-B | Power + MicroPython flashing via Thonny |`
-| 'One-way acrylic mirror sheet' | 1 | No | Yes | ₹350 | 9 by 12 inches, 3 mm | Mirror installation for game display illusion |
-|
+| 'One-way acrylic mirror sheet' | 1 | No | Yes | ₹1250 | 9 by 12 inches, 3 mm | Mirror installation for game display illusion |
+
 ## 12.2 Material Justification
 Explain why you selected your main materials and components.
 
@@ -846,7 +846,7 @@ Examples:
 - Why bearing instead of a plain shaft hole?
 
 **Response:**  
-`[**HW-504 over buttons:** Analogue joysticks give proportional directional intent and a single module covers two axes plus a click, reducing wiring complexity significantly.
+`[**HW-504 JOYSTICKS over buttons:** Analogue joysticks give proportional directional intent and a single module covers upto 4 axes axes plus a click, reducing wiring complexity significantly.
 - **WS2812B NeoPixel over plain LEDs:** Single-wire addressable RGB allows any colour to be set in one line of code, enabling the full action-colour feedback system without extra PWM pins.
 - **MDF/PLA enclosure over cardboard:** Cardboard deforms under joystick force. A rigid enclosure keeps joystick modules fixed at the correct height and separation for comfortable two-thumb grip.
 
@@ -874,7 +874,7 @@ Examples:
 If your cost is too high, what can be simplified, removed, substituted, or shared?
 
 **Response:**  
-`[Write here]`
+`[If cost is too high: drop the one-way mirror installation and present the game on a plain screen — the core BLE controller experience is unaffected. The enclosure can be built from cardboard and hot glue as an interim version while waiting for the laser-cut part.]`
 
 ---
 
@@ -891,20 +891,20 @@ Include:
 - how documentation will be maintained.
 
 **Response:**  
-`[Write here]`
+`[Tasks are laddered first. Then divide on the basis of time at hand. Tasks are divided into two sections which can be simultaneously worked on. Ideation and Thinking process is done together. The repo keeps us on track and helps us keeping up with time and checks our pace. If the task is delayed due to problems beyond our control we reach out to sources online such as youtube,chatgpt etc. At times we also reach out to our faculty and peers. If a task is delayed, the other member picks up documentation or testing for that area. The documentation is maintained via a notion collaborating app where we write down all tasks, codes, refrence material etc ]`
 
 ## 13.2 Task Breakdown
 
 | Task ID | Task | Owner | Estimated Hours | Deadline | Dependency | Status |
 |---|---|---|---:|---|---|---|
-| T1 | `[Finalize concept and game control mapping]` | `[Both]` | `2` | `[Date]` | `None` | `To Do` |
-| T2 | `[Complete BOM]` | `[Name]` | `1` | `[Date]` | `T1` | `To Do` |
-| T3 | `[Test electronics]` | `[Name]` | `2` | `[Date]` | `T1` | `To Do` |
-| T4 | `[Build structure]` | `[Name]` | `4` | `[Date]` | `T1` | `To Do` |
-| T5 | `[Write control code]` | `[Name]` | `4` | `[Date]` | `T3` | `To Do` |
-| T6 | `[Integrate system]` | `[Name]` | `4` | `[Date]` | `T4, T5` | `To Do` |
-| T7 | `[Playtest]` | `[Name]` | `2` | `[Date]` | `T6` | `To Do` |
-| T8 | `[Refine and document]` | `[Name]` | `3` | `[Date]` | `T7` | `To Do` |
+| T1 | `[Finalize concept and game control mapping]` | `[Both]` | `2` | `[31 March '25]` | `None` | `Done` |
+| T2 | `[Complete BOM]` | `[Varada]` | `1` | `[20th April]` | `T1` | `Done` |
+| T3 | `[Test electronics]` | `[Name]` | `2` | `[Date]` | `T1` | `Done` |
+| T4 | `[Build structure]` | `[Name]` | `4` | `[Date]` | `T1` | `Done` |
+| T5 | `[Write control code]` | `[Name]` | `4` | `[Date]` | `T3` | `Donw` |
+| T6 | `[Integrate system]` | `[Name]` | `4` | `[Date]` | `T4, T5` | `Done` |
+| T7 | `[Playtest]` | `[Name]` | `2` | `[Date]` | `T6` | `Done` |
+| T8 | `[Refine and document]` | `[Name]` | `3` | `[Date]` | `T7` | `Done` |
 
 ## 13.3 Responsibility Split
 
