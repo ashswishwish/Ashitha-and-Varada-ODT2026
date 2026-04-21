@@ -1,4 +1,4 @@
-<img width="1262" height="686" alt="WhatsApp Image 2026-04-21 at 7 54 00 PM" src="https://github.com/user-attachments/assets/e18512e2-02e9-40a4-a344-6b06e93d5641" /># Open Design and Technology  
+# Open Design and Technology  
 ## Final Project README
 
 > **Project Weight:** 70%  
