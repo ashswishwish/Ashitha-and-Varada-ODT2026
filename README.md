@@ -976,9 +976,9 @@ Expected outcomes:
 | Week | Planned Goal | What Actually Happened | What Changed | Next Steps |
 |---|---|---|---|---|
 | Week 1 | Concept, BOM, first ADC test | Concept finalized; BOM done; ADC read working on left joystick only | Right joystick on GPIO 34/35 needed ATTN_11DB explicitly set | Add ATTN_11DB to both joysticks — already in code |
-| Week 2 | `[Write here]` | `[Write here]` | `[Write here]` | `[Write here]` |
-| Week 3 | `[Write here]` | `[Write here]` | `[Write here]` | `[Write here]` |
-| Week 4 | `[Write here]` | `[Write here]` | `[Write here]` | `[Write here]` |
+| Week 2 | BLE pairing, NeoPixel logic, GDevelop keybindings | BLE paired successfully with iPad on first try; NeoPixel breathing working; GDevelop keybindings mapped. Discovered GDevelop needs key-held events not key-pressed — fixed in scene editor | Switched all game controls from key-press to key-held events in GDevelop; adjusted linger from 8 loops to 12 for better visual feedback | Solder permanent circuit, start enclosure CAD |
+| Week 3 | Enclosure built, mirror frame assembled, full integration | Enclosure laser-cut from 3mm MDF; joystick holes required second pass — first cut was 0.5mm too tight for the module collar. Mirror frame built from timber offcuts. Full play session completed, minor BLE dropout at ~3m range | Reduced target play distance to under 1.5m; added reconnect breathing loop already in firmware | Playtest with external users, tune deadzone |
+| Week 4 | Playtesting, refinement, documentation | Three external playtests done; deadzone reduced from 600 to 500 after feedback that diagonal movement felt sluggish. NeoPixel linger felt right at 12 loops. One tester suggested labelling the joysticks — added printed sticker labels to enclosure | Deadzone tuned to 500; joystick labels added; README and code comments finalised | Final submission |
 
 ---
 
@@ -988,16 +988,22 @@ Expected outcomes:
 
 | Risk | Type | Likelihood | Impact | Mitigation Plan | Owner |
 |---|---|---|---|---|---|
-| `[Example: Bluetooth disconnects]` | `Technical` | `Medium` | `High` | `[Fallback interaction / simplify connection flow]` | `[Name]` |
-| `[Example: Structure breaks during play]` | `Mechanical` | `Medium` | `High` | `[Reinforce joints / change material]` | `[Name]` |
-| `[Risk]` | `[Technical / Material / Time / Gameplay]` | `[Low/Medium/High]` | `[Low/Medium/High]` | `[Plan]` | `[Name]` |
-| `[Risk]` | `[Type]` | `[Low/Medium/High]` | `[Low/Medium/High]` | `[Plan]` | `[Name]` |
+| Risk | Type | Likelihood | Impact | Mitigation Plan | Owner |
+|---|---|---|---|---|---|
+| BLE disconnects during play | Technical | Medium | High | Reconnect loop in firmware already handles this — LED returns to white and game continues from last state on reconnect | Ashitha |
+| GDevelop treats held keys as repeated taps instead of held | Technical | Medium | High | Test `send_hold` with a key-hold test scene in GDevelop before Week 2 ends; use key-hold events not key-press events in GDevelop | Ashitha |
+| GPIO 34/35 ADC noise causing phantom keypresses | Technical | Medium | Medium | Deadzone of 600 (≈15% of range) absorbs most noise; add small capacitor on ADC lines if still noisy | Varada |
+| NeoPixel flicker from power draw | Technical | Low | Low | 100 µF capacitor on VCC + 300 Ω series on DIN already specified | Ashitha |
+| Enclosure joystick holes misaligned | Mechanical | Medium | Medium | Prototype in cardboard before committing to MDF/PLA; measure joystick cap diameter precisely | Varada |
+| Mirror sheet arrives late | Material | Medium | High | Core experience works without mirror; proceed with plain screen during Week 3 if needed | Both |
+| BLE keyboard not recognised by iPad | Technical | Low | High | Test early (Week 2 Day 1); ensure BLEKeyboard advertises correct HID descriptor | Varada |
+
 
 ## 15.2 Biggest Unknown Right Now
 What is the single biggest uncertainty in your project at this stage?
 
 **Response:**  
-`[Write here]`
+`[Whether GDevelop on iPad correctly handles a BLE HID device holding multiple keys simultaneously for a sustained duration. Standard keyboards send key-repeat events, but `send_hold` in the firmware sends the same HID report continuously as long as the stick is deflected. We need to verify GDevelop's key-held event triggers fire correctly and do not interpret the repeated reports as key spam.]`
 
 ---
 
@@ -1007,20 +1013,24 @@ What is the single biggest uncertainty in your project at this stage?
 
 | What Needs Testing | How You Will Test It | Success Condition |
 |---|---|---|
-| `[Bluetooth connection]` | `[Method]` | `[What counts as success?]` |
-| `[Mechanism movement]` | `[Method]` | `[What counts as success?]` |
-| `[Sensor behavior]` | `[Method]` | `[What counts as success?]` |
-| `[App communication]` | `[Method]` | `[What counts as success?]` |
+| BLE pairing with iPad | Power on ESP32; look for "ESP32_Gamepad" in iPad Bluetooth settings; connect | Device pairs within 10 seconds; no repeated disconnects |
+| Joystick ADC calibration accuracy | Run calibrate() with sticks untouched; print centre values; check both axes within 1900–2200 | Centre value stable ±50 counts across 3 calibrations |
+| Deadzone function | Slowly tilt stick from centre; observe first keypress in serial log | No key fires below ±600 ADC count deflection |
+| BLE key-hold in GDevelop | Hold left stick up; Batman should move continuously, not stutter | Smooth continuous movement for the full duration of stick deflection |
+| NeoPixel colour priority | Press each action in order (F, ESC, J, H, A); observe LED colour | Correct colour on every action; linger ~240 ms after release |
+| Linger timing | Release all sticks; count time before LED returns to white | 12 loops × 20 ms = ~240 ms linger before idle white |
+| Simultaneous key presses | Hold W + fire button simultaneously | Both W (yellow) and F (green) processed; green (fire) wins per priority ladder |
+
 
 ## 16.2 Playtesting Plan
 
 | Question | How You Will Check |
 |---|---|
-| Do players understand what to do? | `[Method]` |
-| Is the interaction satisfying? | `YES` |
-| Do players want another turn? | `YES` |
-| Is the challenge balanced? | `YES` |
-| Is the response clear and immediate? | `[Method]` |
+| Do players understand what to do? | Observe first 30 seconds without instructions; note which stick they try first |
+| Is the interaction satisfying? | Ask players after each round; rate 1–5 |
+| Do players want another turn? | Count unprompted requests for another round |
+| Is the challenge balanced? | Track average survival time on first run; target 20–40 seconds |
+| Is the NeoPixel response clear? | Ask players whether the LED helped them understand their actions |
 
 ## 16.3 Testing and Debugging Log
 
